@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+cloud:
+  gateway:
+    routes:
+      - id: user-service
+        uri: lb://user-service
+        predicates:
+          - Path=/api/user/**
+
+      - id: order-service
+        uri: lb://order-service
+        predicates:
+          - Path=/api/orders/**
+  
