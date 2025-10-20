@@ -23,7 +23,8 @@ spec:
             - containerPort: 8080
           env:
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: "http://eureka-server-service:8761/eureka/"
+              value: "http://eureka-server-service.java-aws-microservice.svc.cluster.local:8761/eureka/"
+              # value: "http://eureka-server-service:8761/eureka/"
 
 ---
 apiVersion: v1
