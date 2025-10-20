@@ -19,6 +19,7 @@ spec:
       containers:
         - name: order-service
           image: rj1608/order-service:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 8082
           env:

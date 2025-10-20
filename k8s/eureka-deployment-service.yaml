@@ -19,6 +19,7 @@ spec:
       containers:
         - name: eureka-server
           image: rj1608/eureka-server:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 8761
 
