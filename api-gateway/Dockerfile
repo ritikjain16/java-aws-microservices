@@ -28,7 +28,7 @@
 # ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # Use Maven + OpenJDK image
-FROM maven:3.9.9-openjdk-17
+FROM maven:3.9.9-eclipse-temurin-17
 
 # Set working directory
 WORKDIR /app
