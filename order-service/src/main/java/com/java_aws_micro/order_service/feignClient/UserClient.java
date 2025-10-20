@@ -5,6 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(name = "user-service")
 public interface UserClient {
-    @GetMapping("/api/user/")
+    @GetMapping("/api/user/b")
     public String getUsers();
 }

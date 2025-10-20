@@ -5,22 +5,47 @@ spring:
   application:
     name: api-gateway
   cloud:
-  gateway:
-    routes:
-      - id: user-service-service
-        uri: lb://user-service-service
-        predicates:
-          - Path=/api/user/**
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: DISCOVERY-SERVER
+          # uri: http://localhost:8761
+          uri: http://eureka-server:8761
+          predicates:
+            - Path=/eureka/web/**
+          filters:
+            - SetPath=/
 
-      - id: order-service-service
-        uri: lb://order-service-service
-        predicates:
-          - Path=/api/orders/**
+        - id: DISCOVERY-SERVER-STATIC
+          # uri: http://localhost:8761
+          uri: http://eureka-server:8761
+          predicates:
+            - Path=/eureka/**
+
+        - id: USER-SERVICE
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+
+        - id: ORDER-SERVICE
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
 
 eureka:
   client:
     service-url:
+      # defaultZone: http://localhost:8761/eureka/
       defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
 
 
   

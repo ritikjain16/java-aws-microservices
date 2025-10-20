@@ -23,8 +23,14 @@ public class OrderController {
 
     @GetMapping("/{userId}")
     public String getOrdersByUserId(@PathVariable("userId") String userId) {
+        // String res = userClient.getUsers();
+        return "Orders for user with ID: " + userId + ". User Service says: ";
+    }
+
+    @GetMapping("/b/b")
+    public String getOrders() {
         String res = userClient.getUsers();
-        return "Orders for user with ID: " + userId + ". User Service says: " + res;
+        return "Orders" + res;
     }
 
 }

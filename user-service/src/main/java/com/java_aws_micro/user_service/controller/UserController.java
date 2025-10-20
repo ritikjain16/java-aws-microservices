@@ -20,7 +20,7 @@ public class UserController {
         return "User Service is working.";
     }
 
-    @GetMapping("/")
+    @GetMapping("/b")
     public String getUsers() {
 
         String res = orderClient.getOrdersByUserId("123");
