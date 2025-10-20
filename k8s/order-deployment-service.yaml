@@ -28,6 +28,8 @@ spec:
               value: "false"
             - name: SPRING_CLOUD_DISCOVERY_ENABLED
               value: "true"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "order-service-service.java-aws-microservice.svc.cluster.local"
 
 ---
 apiVersion: v1
