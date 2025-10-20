@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: eureka-server
-          image: rj1608/eureka-server:latest
+          image: 194006481856.dkr.ecr.us-west-2.amazonaws.com/eureka-server:latest
           ports:
             - containerPort: 8761
 
