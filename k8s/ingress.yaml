@@ -23,17 +23,17 @@ spec:
                 name: api-gateway-service   # Replace with your service name
                 port:
                   number: 8080       # Replace with your service port
-          - path: /api/user
-            pathType: Prefix
-            backend:
-              service:
-                name: user-service   # Replace with your service name
-                port:
-                  number: 8081       # Replace with your service port
-          - path: /api/orders
-            pathType: Prefix
-            backend:
-              service:
-                name: orders-service   # Replace with your service name
-                port:
-                  number: 8082       # Replace with your service port
+          # - path: /api/user
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: user-service   # Replace with your service name
+          #       port:
+          #         number: 8081       # Replace with your service port
+          # - path: /api/orders
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: orders-service   # Replace with your service name
+          #       port:
+          #         number: 8082       # Replace with your service port
