@@ -26,6 +26,8 @@ spec:
               value: "http://eureka-server-service.java-aws-microservice.svc.cluster.local:8761/eureka/"
             - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
               value: "false"
+            - name: SPRING_CLOUD_DISCOVERY_ENABLED
+              value: "true"
 
 ---
 apiVersion: v1
