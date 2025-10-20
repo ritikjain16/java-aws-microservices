@@ -19,7 +19,6 @@ spec:
       containers:
         - name: api-gateway
           image: rj1608/api-gateway:latest
-          imagePullPolicy: Never
           ports:
             - containerPort: 8080
           env:

@@ -19,7 +19,6 @@ spec:
       containers:
         - name: user-service
           image: rj1608/user-service:latest
-          imagePullPolicy: Never
           ports:
             - containerPort: 8081
           env:
