@@ -7,7 +7,7 @@ metadata:
     app: eureka-server
 
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: eureka-server
