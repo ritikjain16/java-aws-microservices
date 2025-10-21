@@ -12,7 +12,8 @@ eureka:
   client:
     service-url:
       # defaultZone: http://localhost:8761/eureka/
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://eureka-server-service.java-aws-microservice.svc.cluster.local:8761/eureka/
   instance:
     prefer-ip-address: false
     hostname: order-service-service.java-aws-microservice.svc.cluster.local
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

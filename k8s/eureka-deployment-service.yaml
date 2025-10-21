@@ -21,6 +21,11 @@ spec:
           image: 194006481856.dkr.ecr.us-west-2.amazonaws.com/eureka-server:v3
           ports:
             - containerPort: 8761
+          env:
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "eureka-server-service.java-aws-microservice.svc.cluster.local"
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "false"
 
 ---
 apiVersion: v1

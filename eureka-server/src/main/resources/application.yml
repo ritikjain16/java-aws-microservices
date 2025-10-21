@@ -8,7 +8,10 @@ spring:
 eureka:
   instance:
     # hostname: localhost
-    hostname: eureka-server
+    hostname: eureka-server-service.java-aws-microservice.svc.cluster.local
+    prefer-ip-address: false
   client:
     register-with-eureka: false
     fetch-registry: false
+    service-url:
+      defaultZone: http://eureka-server-service.java-aws-microservice.svc.cluster.local:8761/eureka/
