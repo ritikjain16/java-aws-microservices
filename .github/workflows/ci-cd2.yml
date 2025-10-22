@@ -129,7 +129,7 @@ jobs:
             - id: build
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
-                  IMAGE=${{ env.API_GATEWAY_REPO }}:$TAG
+                  IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway:$TAG
                   docker build -t $IMAGE ./api-gateway
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -153,7 +153,7 @@ jobs:
             - id: build
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
-                  IMAGE=${{ env.EUREKA_REPO }}:$TAG
+                  IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server:$TAG
                   docker build -t $IMAGE ./eureka-server
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -177,7 +177,7 @@ jobs:
             - id: build
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
-                  IMAGE=${{ env.USER_SERVICE_REPO }}:$TAG
+                  IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service:$TAG
                   docker build -t $IMAGE ./user-service
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -201,7 +201,7 @@ jobs:
             - id: build
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
-                  IMAGE=${{ env.ORDER_SERVICE_REPO }}:$TAG
+                  IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service:$TAG
                   docker build -t $IMAGE ./order-service
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -215,11 +215,22 @@ jobs:
             - uses: actions/checkout@v4
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-            - run: |
-                  sed -i 's|image: .*api-gateway:.*|image: ${{ needs.build-api-gateway.outputs.image }}|' k8s/api-gateway-deployment-service.yaml
-                  sed -i 's|image: .*eureka-server:.*|image: ${{ needs.build-eureka-server.outputs.image }}|' k8s/eureka-deployment-service.yaml
-                  sed -i 's|image: .*user-service:.*|image: ${{ needs.build-user-service.outputs.image }}|' k8s/user-deployment-service.yaml
-                  sed -i 's|image: .*order-service:.*|image: ${{ needs.build-order-service.outputs.image }}|' k8s/order-deployment-service.yaml
+            - name: Update manifest files
+              env:
+                  API_GATEWAY_IMAGE: ${{ needs.build-api-gateway.outputs.image }}
+                  EUREKA_IMAGE: ${{ needs.build-eureka-server.outputs.image }}
+                  USER_SERVICE_IMAGE: ${{ needs.build-user-service.outputs.image }}
+                  ORDER_SERVICE_IMAGE: ${{ needs.build-order-service.outputs.image }}
+              run: |
+                  echo "API Gateway Image: $API_GATEWAY_IMAGE"
+                  echo "Eureka Image: $EUREKA_IMAGE"
+                  echo "User Service Image: $USER_SERVICE_IMAGE"
+                  echo "Order Service Image: $ORDER_SERVICE_IMAGE"
+                  
+                  sed -i "s|image: .*api-gateway:.*|image: $API_GATEWAY_IMAGE|" k8s/api-gateway-deployment-service.yaml
+                  sed -i "s|image: .*eureka-server:.*|image: $EUREKA_IMAGE|" k8s/eureka-deployment-service.yaml
+                  sed -i "s|image: .*user-service:.*|image: $USER_SERVICE_IMAGE|" k8s/user-deployment-service.yaml
+                  sed -i "s|image: .*order-service:.*|image: $ORDER_SERVICE_IMAGE|" k8s/order-deployment-service.yaml
                   
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
