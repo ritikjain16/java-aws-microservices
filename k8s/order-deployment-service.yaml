@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: order-service
-          image: 194006481856.dkr.ecr.us-west-2.amazonaws.com/order-service:4ff74fd3ba2e04b1a7ccbb21abc7677936e21fa5-26
+          image: 194006481856.dkr.ecr.us-west-2.amazonaws.com/order-service:b3da0211f77949070c98e749ee95853651b0151a-27
           ports:
             - containerPort: 8082
           env:
