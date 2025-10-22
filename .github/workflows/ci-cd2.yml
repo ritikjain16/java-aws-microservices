@@ -132,6 +132,10 @@ jobs:
 
                   TAG: ${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
               run: |
+                  # Confirm directories
+                  echo "Current directory: $(pwd)"
+                  ls -l
+                  
                   # Build the Api Gateway Docker image
                   docker build -t $API_GATEWAY_IMAGE_REPO:$TAG ./api-gateway/
 
