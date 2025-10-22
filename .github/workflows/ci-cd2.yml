@@ -236,7 +236,7 @@ jobs:
                   git commit -m "Update image tags to $TAG" || exit 0
                   git push
 
-    notify-argoCD:
+    notify-argocd:
         name: Notify ArgoCD for Deployment
         runs-on: ubuntu-latest
         needs: update-manifests
@@ -246,3 +246,24 @@ jobs:
               run: |
                   curl -k -X POST -u ${{ secrets.ARGOCD_USERNAME }}:${{ secrets.ARGOCD_PASSWORD }} \
                   https://${{ secrets.ARGOCD_HOST }}/api/v1/applications/${{ secrets.ARGOCD_APP_NAME }}/sync
+
+    cleanup:
+        name: Cleanup Docker Images
+        runs-on: ubuntu-latest
+        needs: [build-api-gateway, build-eureka-server, build-user-service, build-order-service]
+        if: always()
+        steps:
+            - uses: aws-actions/configure-aws-credentials@v3
+              with:
+                  role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN1 }}
+                  aws-region: ${{ secrets.AWS_REGION1 }}
+            - name: Delete old ECR images
+              run: |
+                  aws ecr list-images --repository-name ${{ env.API_GATEWAY_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.API_GATEWAY_REPO }} --image-ids file:///dev/stdin || true
+                  aws ecr list-images --repository-name ${{ env.EUREKA_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.EUREKA_REPO }} --image-ids file:///dev/stdin || true
+                  aws ecr list-images --repository-name ${{ env.USER_SERVICE_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.USER_SERVICE_REPO }} --image-ids file:///dev/stdin || true
+                  aws ecr list-images --repository-name ${{ env.ORDER_SERVICE_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.ORDER_SERVICE_REPO }} --image-ids file:///dev/stdin || true
+            - name: Delete local Docker images
+              run: |
+                  docker system prune -af
+                  docker image prune -af
