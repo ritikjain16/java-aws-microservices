@@ -260,11 +260,24 @@ jobs:
             - name: Delete old ECR images
               run: |
                   for repo in ${{ env.API_GATEWAY_REPO }} ${{ env.EUREKA_REPO }} ${{ env.USER_SERVICE_REPO }} ${{ env.ORDER_SERVICE_REPO }}; do
-                    IMAGES=$(aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json)
-                    if [ "$IMAGES" != "[]" ] && [ "$IMAGES" != "null" ]; then
-                      echo "$IMAGES" | aws ecr batch-delete-image --repository-name $repo --image-ids file:///dev/stdin
+                    echo "Processing repository: $repo"
+                    
+                    # List all images in repository
+                    ALL_IMAGES=$(aws ecr list-images --repository-name $repo --query 'imageIds' --output json)
+                    echo "All images in $repo: $ALL_IMAGES"
+                    
+                    # Get images older than 1 day (keep only latest 5 images)
+                    OLD_IMAGES=$(aws ecr describe-images --repository-name $repo --query 'sort_by(imageDetails,&imagePushedAt)[:-5].imageId' --output json)
+                    echo "Old images to delete in $repo: $OLD_IMAGES"
+                    
+                    if [ "$OLD_IMAGES" != "[]" ] && [ "$OLD_IMAGES" != "null" ] && [ "$OLD_IMAGES" != "" ]; then
+                      echo "Deleting old images from $repo"
+                      echo "$OLD_IMAGES" | aws ecr batch-delete-image --repository-name $repo --image-ids file:///dev/stdin
+                      echo "Deleted old images from $repo"
+                    else
+                      echo "No old images to delete in $repo"
                     fi
-                  done || true
+                  done
             - name: Delete local Docker images
               run: |
                   docker system prune -af
