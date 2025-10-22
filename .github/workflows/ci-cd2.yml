@@ -133,16 +133,16 @@ jobs:
                   TAG: ${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
               run: |
                   # Build the Api Gateway Docker image
-                  docker build -t $API_GATEWAY_IMAGE_REPO:$TAG ./api-gateway
+                  docker build -t $API_GATEWAY_IMAGE_REPO:$TAG ./api-gateway/
 
                   # Build the Eureka Server Docker image
-                  docker build -t $EUREKA_IMAGE_REPO:$TAG ./eureka-server
+                  docker build -t $EUREKA_IMAGE_REPO:$TAG ./eureka-server/
 
                   # Build the User Service Docker image
-                  docker build -t $USER_SERVICE_IMAGE_REPO:$TAG ./user-service
+                  docker build -t $USER_SERVICE_IMAGE_REPO:$TAG ./user-service/
 
                   # Build the Order Service Docker image
-                  docker build -t $ORDER_SERVICE_IMAGE_REPO:$TAG ./order-service
+                  docker build -t $ORDER_SERVICE_IMAGE_REPO:$TAG ./order-service/
 
                   # Push the Api Gateway Docker image to ECR
                   docker push $API_GATEWAY_IMAGE_REPO:$TAG
