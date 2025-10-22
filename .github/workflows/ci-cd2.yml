@@ -225,10 +225,10 @@ jobs:
 
                   echo "Updating manifests with tag: $TAG"
 
-                  sed -i "s|image: .*api-gateway:.*|image: $API_GATEWAY_IMAGE|" k8s/api-gateway-deployment-service.yaml
-                  sed -i "s|image: .*eureka-server:.*|image: $EUREKA_IMAGE|" k8s/eureka-deployment-service.yaml
-                  sed -i "s|image: .*user-service:.*|image: $USER_SERVICE_IMAGE|" k8s/user-deployment-service.yaml
-                  sed -i "s|image: .*order-service:.*|image: $ORDER_SERVICE_IMAGE|" k8s/order-deployment-service.yaml
+                  sed -i "s|image: .*|image: $API_GATEWAY_IMAGE|" k8s/api-gateway-deployment-service.yaml
+                  sed -i "s|image: .*|image: $EUREKA_IMAGE|" k8s/eureka-deployment-service.yaml
+                  sed -i "s|image: .*|image: $USER_SERVICE_IMAGE|" k8s/user-deployment-service.yaml
+                  sed -i "s|image: .*|image: $ORDER_SERVICE_IMAGE|" k8s/order-deployment-service.yaml
 
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
