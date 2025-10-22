@@ -8,11 +8,11 @@ on:
         branches: ["master"]
     workflow_dispatch:
 
-env:
-    API_GATEWAY_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway
-    EUREKA_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server
-    USER_SERVICE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service
-    ORDER_SERVICE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service
+# env:
+#     API_GATEWAY_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway
+#     EUREKA_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server
+#     USER_SERVICE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service
+#     ORDER_SERVICE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service
 
 permissions:
     contents: write
