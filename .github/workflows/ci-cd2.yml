@@ -114,8 +114,6 @@ jobs:
         name: Build & Push API Gateway
         runs-on: ubuntu-latest
         needs: checkout
-        outputs:
-            image: ${{ steps.build.outputs.image }}
         steps:
             - uses: actions/checkout@v4
             - uses: aws-actions/configure-aws-credentials@v3
@@ -126,22 +124,20 @@ jobs:
             - name: Configure Docker to use ECR credentials
               run: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
-            - id: build
+            - name: Build and push
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway:$TAG
                   echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./api-gateway
                   docker push $IMAGE
-                  echo "image=$IMAGE" >> $GITHUB_OUTPUT
                   echo "API_GATEWAY_IMAGE=$IMAGE" >> $GITHUB_ENV
+                  echo "DEBUG: Set API_GATEWAY_IMAGE to $IMAGE"
 
     build-eureka-server:
         name: Build & Push Eureka Server
         runs-on: ubuntu-latest
         needs: checkout
-        outputs:
-            image: ${{ steps.build.outputs.image }}
         steps:
             - uses: actions/checkout@v4
             - uses: aws-actions/configure-aws-credentials@v3
@@ -152,22 +148,20 @@ jobs:
             - name: Configure Docker to use ECR credentials
               run: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
-            - id: build
+            - name: Build and push
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server:$TAG
                   echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./eureka-server
                   docker push $IMAGE
-                  echo "image=$IMAGE" >> $GITHUB_OUTPUT
                   echo "EUREKA_IMAGE=$IMAGE" >> $GITHUB_ENV
+                  echo "DEBUG: Set EUREKA_IMAGE to $IMAGE"
 
     build-user-service:
         name: Build & Push User Service
         runs-on: ubuntu-latest
         needs: checkout
-        outputs:
-            image: ${{ steps.build.outputs.image }}
         steps:
             - uses: actions/checkout@v4
             - uses: aws-actions/configure-aws-credentials@v3
@@ -178,22 +172,20 @@ jobs:
             - name: Configure Docker to use ECR credentials
               run: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
-            - id: build
+            - name: Build and push
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service:$TAG
                   echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./user-service
                   docker push $IMAGE
-                  echo "image=$IMAGE" >> $GITHUB_OUTPUT
                   echo "USER_SERVICE_IMAGE=$IMAGE" >> $GITHUB_ENV
+                  echo "DEBUG: Set USER_SERVICE_IMAGE to $IMAGE"
 
     build-order-service:
         name: Build & Push Order Service
         runs-on: ubuntu-latest
         needs: checkout
-        outputs:
-            image: ${{ steps.build.outputs.image }}
         steps:
             - uses: actions/checkout@v4
             - uses: aws-actions/configure-aws-credentials@v3
@@ -204,15 +196,15 @@ jobs:
             - name: Configure Docker to use ECR credentials
               run: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
-            - id: build
+            - name: Build and push
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service:$TAG
                   echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./order-service
                   docker push $IMAGE
-                  echo "image=$IMAGE" >> $GITHUB_OUTPUT
                   echo "ORDER_SERVICE_IMAGE=$IMAGE" >> $GITHUB_ENV
+                  echo "DEBUG: Set ORDER_SERVICE_IMAGE to $IMAGE"
 
     update-manifests:
         name: Update K8s Manifests
@@ -229,22 +221,31 @@ jobs:
             - uses: actions/checkout@v4
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-            - name: Update manifest files
-              #   env:
-              #       API_GATEWAY_IMAGE: ${{ needs.build-api-gateway.outputs.image }}
-              #       EUREKA_IMAGE: ${{ needs.build-eureka-server.outputs.image }}
-              #       USER_SERVICE_IMAGE: ${{ needs.build-user-service.outputs.image }}
-              #       ORDER_SERVICE_IMAGE: ${{ needs.build-order-service.outputs.image }}
+            - name: Debug environment
               run: |
-                  echo "API Gateway Image: ${API_GATEWAY_IMAGE}"
-                  echo "Eureka Image: ${EUREKA_IMAGE}"
-                  echo "User Service Image: ${USER_SERVICE_IMAGE}"
-                  echo "Order Service Image: ${ORDER_SERVICE_IMAGE}"
+                  echo "DEBUG: All environment variables:"
+                  env | grep -E "(API_GATEWAY|EUREKA|USER_SERVICE|ORDER_SERVICE)" || echo "No matching env vars found"
+                  echo "DEBUG: GITHUB_ENV file contents:"
+                  cat $GITHUB_ENV || echo "GITHUB_ENV file not found"
+            - name: Update manifest files
+              run: |
+                  echo "API Gateway Image: '${API_GATEWAY_IMAGE}'"
+                  echo "Eureka Image: '${EUREKA_IMAGE}'"
+                  echo "User Service Image: '${USER_SERVICE_IMAGE}'"
+                  echo "Order Service Image: '${ORDER_SERVICE_IMAGE}'"
 
-                  sed -i "s|image: .*api-gateway:.*|image: ${API_GATEWAY_IMAGE}|" k8s/api-gateway-deployment-service.yaml
-                  sed -i "s|image: .*eureka-server:.*|image: ${EUREKA_IMAGE}|" k8s/eureka-deployment-service.yaml
-                  sed -i "s|image: .*user-service:.*|image: ${USER_SERVICE_IMAGE}|" k8s/user-deployment-service.yaml
-                  sed -i "s|image: .*order-service:.*|image: ${ORDER_SERVICE_IMAGE}|" k8s/order-deployment-service.yaml
+                  if [ -n "${API_GATEWAY_IMAGE}" ]; then
+                    sed -i "s|image: .*api-gateway:.*|image: ${API_GATEWAY_IMAGE}|" k8s/api-gateway-deployment-service.yaml
+                  fi
+                  if [ -n "${EUREKA_IMAGE}" ]; then
+                    sed -i "s|image: .*eureka-server:.*|image: ${EUREKA_IMAGE}|" k8s/eureka-deployment-service.yaml
+                  fi
+                  if [ -n "${USER_SERVICE_IMAGE}" ]; then
+                    sed -i "s|image: .*user-service:.*|image: ${USER_SERVICE_IMAGE}|" k8s/user-deployment-service.yaml
+                  fi
+                  if [ -n "${ORDER_SERVICE_IMAGE}" ]; then
+                    sed -i "s|image: .*order-service:.*|image: ${ORDER_SERVICE_IMAGE}|" k8s/order-deployment-service.yaml
+                  fi
 
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
