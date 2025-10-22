@@ -227,22 +227,37 @@ jobs:
             - uses: actions/checkout@v4
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-            - name: Update manifest files
-              env:
-                  API_GATEWAY_IMAGE: ${{ needs.build-api-gateway.outputs.image }}
-                  EUREKA_IMAGE: ${{ needs.build-eureka-server.outputs.image }}
-                  USER_SERVICE_IMAGE: ${{ needs.build-user-service.outputs.image }}
-                  ORDER_SERVICE_IMAGE: ${{ needs.build-order-service.outputs.image }}
+            - name: Debug job outputs
               run: |
+                  echo "Raw outputs:"
+                  echo "API Gateway: '${{ needs.build-api-gateway.outputs.image }}'"
+                  echo "Eureka: '${{ needs.build-eureka-server.outputs.image }}'"
+                  echo "User Service: '${{ needs.build-user-service.outputs.image }}'"
+                  echo "Order Service: '${{ needs.build-order-service.outputs.image }}'"
+            - name: Update manifest files
+              run: |
+                  API_GATEWAY_IMAGE="${{ needs.build-api-gateway.outputs.image }}"
+                  EUREKA_IMAGE="${{ needs.build-eureka-server.outputs.image }}"
+                  USER_SERVICE_IMAGE="${{ needs.build-user-service.outputs.image }}"
+                  ORDER_SERVICE_IMAGE="${{ needs.build-order-service.outputs.image }}"
+                  
                   echo "API Gateway Image: $API_GATEWAY_IMAGE"
                   echo "Eureka Image: $EUREKA_IMAGE"
                   echo "User Service Image: $USER_SERVICE_IMAGE"
                   echo "Order Service Image: $ORDER_SERVICE_IMAGE"
                   
-                  sed -i "s|image: .*api-gateway:.*|image: $API_GATEWAY_IMAGE|" k8s/api-gateway-deployment-service.yaml
-                  sed -i "s|image: .*eureka-server:.*|image: $EUREKA_IMAGE|" k8s/eureka-deployment-service.yaml
-                  sed -i "s|image: .*user-service:.*|image: $USER_SERVICE_IMAGE|" k8s/user-deployment-service.yaml
-                  sed -i "s|image: .*order-service:.*|image: $ORDER_SERVICE_IMAGE|" k8s/order-deployment-service.yaml
+                  if [ -n "$API_GATEWAY_IMAGE" ]; then
+                    sed -i "s|image: .*api-gateway:.*|image: $API_GATEWAY_IMAGE|" k8s/api-gateway-deployment-service.yaml
+                  fi
+                  if [ -n "$EUREKA_IMAGE" ]; then
+                    sed -i "s|image: .*eureka-server:.*|image: $EUREKA_IMAGE|" k8s/eureka-deployment-service.yaml
+                  fi
+                  if [ -n "$USER_SERVICE_IMAGE" ]; then
+                    sed -i "s|image: .*user-service:.*|image: $USER_SERVICE_IMAGE|" k8s/user-deployment-service.yaml
+                  fi
+                  if [ -n "$ORDER_SERVICE_IMAGE" ]; then
+                    sed -i "s|image: .*order-service:.*|image: $ORDER_SERVICE_IMAGE|" k8s/order-deployment-service.yaml
+                  fi
                   
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
