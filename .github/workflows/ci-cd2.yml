@@ -262,20 +262,24 @@ jobs:
                   for repo in ${{ env.API_GATEWAY_REPO }} ${{ env.EUREKA_REPO }} ${{ env.USER_SERVICE_REPO }} ${{ env.ORDER_SERVICE_REPO }}; do
                     echo "Processing repository: $repo"
                     
-                    # List all images in repository
-                    ALL_IMAGES=$(aws ecr list-images --repository-name $repo --query 'imageIds' --output json)
-                    echo "All images in $repo: $ALL_IMAGES"
+                    # Get total image count
+                    TOTAL_IMAGES=$(aws ecr list-images --repository-name $repo --query 'length(imageIds)' --output text)
+                    echo "Total images in $repo: $TOTAL_IMAGES"
                     
-                    # Get images older than 1 day (keep only latest 5 images)
-                    OLD_IMAGES=$(aws ecr describe-images --repository-name $repo --query 'sort_by(imageDetails,&imagePushedAt)[:-5].imageId' --output json)
-                    echo "Old images to delete in $repo: $OLD_IMAGES"
-                    
-                    if [ "$OLD_IMAGES" != "[]" ] && [ "$OLD_IMAGES" != "null" ] && [ "$OLD_IMAGES" != "" ]; then
-                      echo "Deleting old images from $repo"
-                      echo "$OLD_IMAGES" | aws ecr batch-delete-image --repository-name $repo --image-ids file:///dev/stdin
-                      echo "Deleted old images from $repo"
+                    if [ "$TOTAL_IMAGES" -gt 2 ]; then
+                      # Get old images (keep only latest 2)
+                      OLD_IMAGES=$(aws ecr describe-images --repository-name $repo --query 'sort_by(imageDetails,&imagePushedAt)[:-2].[imageDigest,imageTags[0]]' --output json | jq -r '.[] | {imageDigest: .[0], imageTag: .[1]}')
+                      echo "Old images to delete in $repo: $OLD_IMAGES"
+                      
+                      # Delete old images one by one
+                      aws ecr describe-images --repository-name $repo --query 'sort_by(imageDetails,&imagePushedAt)[:-2].imageDigest' --output text | tr '\t' '\n' | while read digest; do
+                        if [ -n "$digest" ]; then
+                          echo "Deleting image with digest: $digest"
+                          aws ecr batch-delete-image --repository-name $repo --image-ids imageDigest=$digest
+                        fi
+                      done
                     else
-                      echo "No old images to delete in $repo"
+                      echo "Only $TOTAL_IMAGES images in $repo, keeping all"
                     fi
                   done
             - name: Delete local Docker images
