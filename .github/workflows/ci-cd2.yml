@@ -109,6 +109,11 @@ jobs:
         runs-on: ubuntu-latest
         needs: checkout
         steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
             - name: Login to Amazon ECR (uses OIDC / short-lived creds)
               uses: aws-actions/configure-aws-credentials@v3
               with:
@@ -135,18 +140,18 @@ jobs:
                   # Confirm directories
                   echo "Current directory: $(pwd)"
                   ls -l
-                  
+
                   # Build the Api Gateway Docker image
-                  docker build -t $API_GATEWAY_IMAGE_REPO:$TAG ./api-gateway/
+                  docker build -t $API_GATEWAY_IMAGE_REPO:$TAG ./api-gateway
 
                   # Build the Eureka Server Docker image
-                  docker build -t $EUREKA_IMAGE_REPO:$TAG ./eureka-server/
+                  docker build -t $EUREKA_IMAGE_REPO:$TAG ./eureka-server
 
                   # Build the User Service Docker image
-                  docker build -t $USER_SERVICE_IMAGE_REPO:$TAG ./user-service/
+                  docker build -t $USER_SERVICE_IMAGE_REPO:$TAG ./user-service
 
                   # Build the Order Service Docker image
-                  docker build -t $ORDER_SERVICE_IMAGE_REPO:$TAG ./order-service/
+                  docker build -t $ORDER_SERVICE_IMAGE_REPO:$TAG ./order-service
 
                   # Push the Api Gateway Docker image to ECR
                   docker push $API_GATEWAY_IMAGE_REPO:$TAG
