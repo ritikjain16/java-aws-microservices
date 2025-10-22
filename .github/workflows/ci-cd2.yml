@@ -104,63 +104,82 @@ jobs:
     #                   echo "Quality Gate passed."
     #               fi
 
-    build-and-push-image:
-        name: Build & Push Docker Image to ECR
+    build-api-gateway:
+        name: Build & Push API Gateway
         runs-on: ubuntu-latest
         needs: checkout
         steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
+            - uses: aws-actions/configure-aws-credentials@v3
               with:
-                  fetch-depth: 0
-
-            - name: Login to Amazon ECR (uses OIDC / short-lived creds)
-              uses: aws-actions/configure-aws-credentials@v3
-              with:
-                  role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN1 }} # least-privilege role configured in AWS for repo
+                  role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN1 }}
                   aws-region: ${{ secrets.AWS_REGION1 }}
-
-            - name: Login to Amazon ECR
-              id: login-ecr
-              uses: aws-actions/amazon-ecr-login@v1
-
+            - uses: aws-actions/amazon-ecr-login@v1
             - name: Configure Docker to use ECR credentials
               run: |
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
+            - run: |
+                  TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
+                  REPO=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway
+                  docker build -t $REPO:$TAG ./api-gateway
+                  docker push $REPO:$TAG
 
-            - name: Build, tag, and push image to Amazon ECR
-              env:
-                  API_GATEWAY_IMAGE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway
-                  EUREKA_IMAGE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server
-                  USER_SERVICE_IMAGE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service
-                  ORDER_SERVICE_IMAGE_REPO: ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service
-
-                  TAG: ${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
+    build-eureka-server:
+        name: Build & Push Eureka Server
+        runs-on: ubuntu-latest
+        needs: checkout
+        steps:
+            - uses: actions/checkout@v4
+            - uses: aws-actions/configure-aws-credentials@v3
+              with:
+                  role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN1 }}
+                  aws-region: ${{ secrets.AWS_REGION1 }}
+            - uses: aws-actions/amazon-ecr-login@v1
+            - name: Configure Docker to use ECR credentials
               run: |
-                  # Confirm directories
-                  echo "Current directory: $(pwd)"
-                  ls -l
+                  aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
+            - run: |
+                  TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
+                  REPO=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server
+                  docker build -t $REPO:$TAG ./eureka-server
+                  docker push $REPO:$TAG
 
-                  # Build the Api Gateway Docker image
-                  docker build -t $API_GATEWAY_IMAGE_REPO:$TAG ./api-gateway
+    build-user-service:
+        name: Build & Push User Service
+        runs-on: ubuntu-latest
+        needs: checkout
+        steps:
+            - uses: actions/checkout@v4
+            - uses: aws-actions/configure-aws-credentials@v3
+              with:
+                  role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN1 }}
+                  aws-region: ${{ secrets.AWS_REGION1 }}
+            - uses: aws-actions/amazon-ecr-login@v1
+            - name: Configure Docker to use ECR credentials
+              run: |
+                  aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
+            - run: |
+                  TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
+                  REPO=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service
+                  docker build -t $REPO:$TAG ./user-service
+                  docker push $REPO:$TAG
 
-                  # Build the Eureka Server Docker image
-                  docker build -t $EUREKA_IMAGE_REPO:$TAG ./eureka-server
-
-                  # Build the User Service Docker image
-                  docker build -t $USER_SERVICE_IMAGE_REPO:$TAG ./user-service
-
-                  # Build the Order Service Docker image
-                  docker build -t $ORDER_SERVICE_IMAGE_REPO:$TAG ./order-service
-
-                  # Push the Api Gateway Docker image to ECR
-                  docker push $API_GATEWAY_IMAGE_REPO:$TAG
-
-                  # Push the Eureka Server Docker image to ECR
-                  docker push $EUREKA_IMAGE_REPO:$TAG
-
-                  # Push the User Service Docker image to ECR
-                  docker push $USER_SERVICE_IMAGE_REPO:$TAG
-
-                  # Push the Order Service Docker image to ECR
-                  docker push $ORDER_SERVICE_IMAGE_REPO:$TAG
+    build-order-service:
+        name: Build & Push Order Service
+        runs-on: ubuntu-latest
+        needs: checkout
+        steps:
+            - uses: actions/checkout@v4
+            - uses: aws-actions/configure-aws-credentials@v3
+              with:
+                  role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN1 }}
+                  aws-region: ${{ secrets.AWS_REGION1 }}
+            - uses: aws-actions/amazon-ecr-login@v1
+            - name: Configure Docker to use ECR credentials
+              run: |
+                  aws ecr get-login-password --region ${{ secrets.AWS_REGION1 }} | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com
+            - run: |
+                  TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
+                  REPO=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service
+                  docker build -t $REPO:$TAG ./order-service
+                  docker push $REPO:$TAG
