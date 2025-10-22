@@ -23,7 +23,7 @@ public class UserController {
     @GetMapping("/b")
     public String getUsers() {
 
-        String res = orderClient.getOrdersByUserId("123");
+        String res = orderClient.getOrdersByUserId("123456");
 
         return "User Service is working. Orders: " + res;
     }
