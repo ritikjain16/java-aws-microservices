@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: 194006481856.dkr.ecr.us-west-2.amazonaws.com/user-service:fc2902ce97bbcf1835cf478819f5ccd0da34c90b-22
+          image: 194006481856.dkr.ecr.us-west-2.amazonaws.com/user-service:6fc1124a71a20ae1ec854eda1f1ce95580fefc32-23
           ports:
             - containerPort: 8081
           env:
