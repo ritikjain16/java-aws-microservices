@@ -259,10 +259,12 @@ jobs:
                   aws-region: ${{ secrets.AWS_REGION1 }}
             - name: Delete old ECR images
               run: |
-                  aws ecr list-images --repository-name ${{ env.API_GATEWAY_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.API_GATEWAY_REPO }} --image-ids file:///dev/stdin || true
-                  aws ecr list-images --repository-name ${{ env.EUREKA_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.EUREKA_REPO }} --image-ids file:///dev/stdin || true
-                  aws ecr list-images --repository-name ${{ env.USER_SERVICE_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.USER_SERVICE_REPO }} --image-ids file:///dev/stdin || true
-                  aws ecr list-images --repository-name ${{ env.ORDER_SERVICE_REPO }} --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json | jq '.[]' | aws ecr batch-delete-image --repository-name ${{ env.ORDER_SERVICE_REPO }} --image-ids file:///dev/stdin || true
+                  for repo in ${{ env.API_GATEWAY_REPO }} ${{ env.EUREKA_REPO }} ${{ env.USER_SERVICE_REPO }} ${{ env.ORDER_SERVICE_REPO }}; do
+                    IMAGES=$(aws ecr list-images --repository-name $repo --filter tagStatus=UNTAGGED --query 'imageIds[?imageDigest!=null]' --output json)
+                    if [ "$IMAGES" != "[]" ] && [ "$IMAGES" != "null" ]; then
+                      echo "$IMAGES" | aws ecr batch-delete-image --repository-name $repo --image-ids file:///dev/stdin
+                    fi
+                  done || true
             - name: Delete local Docker images
               run: |
                   docker system prune -af
