@@ -34,7 +34,7 @@ jobs:
 
             - name: Set commit output
               id: commit
-              run: echo "::set-output name=sha::${GITHUB_SHA}"
+              run: echo "sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
 
     # # 3. Static Code Analysis (SonarQube)
     # sonar:
@@ -130,6 +130,7 @@ jobs:
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/api-gateway:$TAG
+                  echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./api-gateway
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -154,6 +155,7 @@ jobs:
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/eureka-server:$TAG
+                  echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./eureka-server
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -178,6 +180,7 @@ jobs:
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/user-service:$TAG
+                  echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./user-service
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
@@ -202,6 +205,7 @@ jobs:
               run: |
                   TAG=${{ needs.checkout.outputs.commit }}-${{ github.run_number }}
                   IMAGE=${{secrets.AWS_ACCOUNT_ID1}}.dkr.ecr.${{ secrets.AWS_REGION1 }}.amazonaws.com/order-service:$TAG
+                  echo "Building image: $IMAGE"
                   docker build -t $IMAGE ./order-service
                   docker push $IMAGE
                   echo "image=$IMAGE" >> $GITHUB_OUTPUT
