@@ -10,7 +10,8 @@ spec:
     targetRevision: master
     path: k8s
   destination:
-    server:  https://EA8AC60792985022739F9A6D1EBC7715.gr7.us-west-2.eks.amazonaws.com 
+    # server:  https://EA8AC60792985022739F9A6D1EBC7715.gr7.us-west-2.eks.amazonaws.com 
+    server: https://99B888BC7ED5BAB35471C64416998046.gr7.ap-south-1.eks.amazonaws.com
     namespace: java-aws-microservice
   syncPolicy:
     automated:
