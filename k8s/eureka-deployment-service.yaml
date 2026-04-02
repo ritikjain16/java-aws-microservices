@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: eureka-server
-          image: 310997740486.dkr.ecr.ap-south-1.amazonaws.com/eureka-server:4bd86e2d2353482e40ddc842bcac4cbd6c2fa2de-37
+          image: 979667334110.dkr.ecr.ap-south-1.amazonaws.com/eureka-server:59cfb32e1e0180dbd06dd42c19176c199952f141-39
           ports:
             - containerPort: 8761
           env:
