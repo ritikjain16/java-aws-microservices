@@ -27,6 +27,14 @@ spec:
             - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
               value: "false"
 
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
 ---
 apiVersion: v1
 kind: Service
